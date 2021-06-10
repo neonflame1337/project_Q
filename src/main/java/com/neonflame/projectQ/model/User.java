@@ -2,6 +2,8 @@ package com.neonflame.projectQ.model;
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 
 @Entity
 @Table(name = "usr")
@@ -11,19 +13,18 @@ public class User {
     private Long id;
     private String username;
     private String email;
-    private String pass;
+    private String password;
 
     @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "usr_role", joinColumns = @JoinColumn(name = "usr_id"))
     @Enumerated(EnumType.STRING)
-    private HashSet<Role> roles;
+    private List<Role> roles;
 
     private boolean active;
     private String activationCode;
 
     public User() {
-        this.roles = new HashSet<>();
-        this.roles.add(Role.USER);
+        this.roles = new LinkedList<>();
     }
 
     public Long getId() {
@@ -50,19 +51,19 @@ public class User {
         this.email = email;
     }
 
-    public String getPass() {
-        return pass;
+    public String getPassword() {
+        return password;
     }
 
-    public void setPass(String pass) {
-        this.pass = pass;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
-    public HashSet<Role> getRoles() {
+    public List<Role> getRoles() {
         return roles;
     }
 
-    public void setRoles(HashSet<Role> roles) {
+    public void setRoles(List<Role> roles) {
         this.roles = roles;
     }
 

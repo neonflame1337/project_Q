@@ -1,7 +1,6 @@
 package com.neonflame.projectQ.model;
 
 import javax.persistence.*;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -21,7 +20,7 @@ public class User {
     private List<Role> roles;
 
     private boolean active;
-    private String activationCode;
+    private String activationToken;
 
     public User() {
         this.roles = new LinkedList<>();
@@ -75,11 +74,11 @@ public class User {
         this.active = active;
     }
 
-    public String getActivationCode() {
-        return activationCode;
+    public String getActivationToken() {
+        return activationToken;
     }
 
-    public void setActivationCode(String activationCode) {
-        this.activationCode = activationCode;
+    public void setActivationToken(String activationCode) {
+        this.activationToken = activationCode;
     }
 }

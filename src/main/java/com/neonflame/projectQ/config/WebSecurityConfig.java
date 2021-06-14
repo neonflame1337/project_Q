@@ -1,4 +1,4 @@
-package com.neonflame.projectQ;
+package com.neonflame.projectQ.config;
 
 import com.neonflame.projectQ.security.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +46,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
+                .antMatchers("/api/v1/registration/**").permitAll()
+                .antMatchers("/api/v1/registration/activate").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .formLogin().permitAll()

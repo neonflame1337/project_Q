@@ -1,4 +1,4 @@
-package com.neonflame.projectQ.Utility;
+package com.neonflame.projectQ.utility;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 

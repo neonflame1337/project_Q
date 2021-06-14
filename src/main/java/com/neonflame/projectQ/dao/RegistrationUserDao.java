@@ -1,4 +1,4 @@
-package com.neonflame.projectQ.Dao;
+package com.neonflame.projectQ.dao;
 
 public class RegistrationUserDao {
     public String email;

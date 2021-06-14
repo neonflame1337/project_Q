@@ -1,4 +1,4 @@
-package com.neonflame.projectQ.Utility;
+package com.neonflame.projectQ.utility;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

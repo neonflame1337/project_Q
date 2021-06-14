@@ -17,14 +17,22 @@ public class UserDetailsImpl implements UserDetails {
     private final String password;
     private final List<? extends GrantedAuthority> authority;
     private final boolean active;
+    private final String activationToken;
 
-    public UserDetailsImpl(Long id, String username, String email, String password, List<? extends GrantedAuthority> authority, boolean active) {
+    public UserDetailsImpl(Long id,
+                           String username,
+                           String email,
+                           String password,
+                           List<? extends GrantedAuthority> authority,
+                           boolean active,
+                           String activationToken) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.password = password;
         this.authority = authority;
         this.active = active;
+        this.activationToken = activationToken;
     }
 
     public static UserDetailsImpl createFromUser(User user) {
@@ -36,7 +44,8 @@ public class UserDetailsImpl implements UserDetails {
                 user.getRoles().stream()
                         .map(role -> new SimpleGrantedAuthority(role.name()))
                         .collect(Collectors.toList()),
-                user.isActive()
+                user.isActive(),
+                user.getActivationToken()
         );
     }
 
@@ -72,6 +81,6 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return active;
+        return activationToken == null;
     }
 }

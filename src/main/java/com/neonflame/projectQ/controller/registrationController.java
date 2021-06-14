@@ -1,44 +1,38 @@
 package com.neonflame.projectQ.controller;
 
-import com.neonflame.projectQ.Dao.RegistrationUserDao;
-import com.neonflame.projectQ.Utility.EmailValidator;
-import com.neonflame.projectQ.Utility.PasswordEncoder;
-import com.neonflame.projectQ.model.Role;
-import com.neonflame.projectQ.model.User;
-import com.neonflame.projectQ.repository.UserRepo;
+import com.neonflame.projectQ.dao.RegistrationUserDao;
+import com.neonflame.projectQ.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("api/v1/registration")
+//@PreAuthorize("permitAll()")
 public class registrationController {
 
-    private final UserRepo userRepo;
+    private final UserService userService;
 
-    public registrationController(UserRepo userRepo) {
-        this.userRepo = userRepo;
+    public registrationController(UserService userService) {
+        this.userService = userService;
     }
 
     @PostMapping("")
     public ResponseEntity<?> registration (@RequestBody RegistrationUserDao registrationUserDao) {
-        if (!EmailValidator.isValid(registrationUserDao.email))
-            throw new IllegalStateException("Invalid email format");
-        if (userRepo.findByEmail(registrationUserDao.email.toLowerCase()) != null)
-            throw new IllegalStateException("User with this email exists");
-        if (userRepo.findByUsername(registrationUserDao.username.toLowerCase()) != null)
-            throw new IllegalStateException("User with this username exists");
-        User user = new User();
-        user.setEmail(registrationUserDao.email);
-        user.setUsername(registrationUserDao.username);
-        user.setPassword(new PasswordEncoder().encode(registrationUserDao.password));
-        user.getRoles().add(Role.USER);
-        userRepo.save(user);
+
+        userService.register(registrationUserDao);
+
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
+    }
+
+    @GetMapping("activate")
+    public ResponseEntity<Object> activate (@RequestParam("username") String username,
+                                            @RequestParam("token") String token) {
+        if (userService.activateToken(username, token))
+            return new ResponseEntity<>(HttpStatus.OK);
+        else
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
 }

@@ -1,6 +1,6 @@
 package com.neonflame.projectQ.service;
 
-import com.neonflame.projectQ.dao.RegistrationUserDao;
+import com.neonflame.projectQ.dto.RegistrationUserDto;
 import com.neonflame.projectQ.model.Role;
 import com.neonflame.projectQ.model.User;
 import com.neonflame.projectQ.repository.UserRepo;
@@ -22,17 +22,17 @@ public class UserService {
         this.mailSender = mailSender;
     }
 
-    public User register (RegistrationUserDao registrationUserDao) {
-        if (!EmailValidator.isValid(registrationUserDao.email))
+    public User register (RegistrationUserDto registrationUserDto) {
+        if (!EmailValidator.isValid(registrationUserDto.email))
             throw new IllegalStateException("Invalid email format");
-        if (userRepo.findByEmail(registrationUserDao.email.toLowerCase()) != null)
+        if (userRepo.findByEmail(registrationUserDto.email.toLowerCase()) != null)
             throw new IllegalStateException("User with this email exists");
-        if (userRepo.findByUsername(registrationUserDao.username.toLowerCase()) != null)
+        if (userRepo.findByUsername(registrationUserDto.username.toLowerCase()) != null)
             throw new IllegalStateException("User with this username exists");
         com.neonflame.projectQ.model.User user = new com.neonflame.projectQ.model.User();
-        user.setEmail(registrationUserDao.email);
-        user.setUsername(registrationUserDao.username);
-        user.setPassword(new PasswordEncoder().encode(registrationUserDao.password));
+        user.setEmail(registrationUserDto.email);
+        user.setUsername(registrationUserDto.username);
+        user.setPassword(new PasswordEncoder().encode(registrationUserDto.password));
         user.getRoles().add(Role.USER);
         user.setActive(true);
         user.setActivationToken(UUID.randomUUID().toString());
@@ -42,7 +42,7 @@ public class UserService {
     }
 
     public void sentVerificationToken (User user) {
-        mailSender.sent(
+        mailSender.send(
                 user.getEmail(),
                 "Activate your account",
                 String.format("Your activation link + \n " +
@@ -50,7 +50,7 @@ public class UserService {
                         user.getUsername(), user.getActivationToken()));
     }
 
-    public boolean activateToken (String username, String activationToken) {
+    public boolean activate(String username, String activationToken) {
         User user = userRepo.findByUsernameAndActivationToken(username, activationToken);
         if (user == null)
             throw new IllegalStateException("Invalid activation token");

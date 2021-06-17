@@ -1,10 +1,9 @@
 package com.neonflame.projectQ.controller;
 
-import com.neonflame.projectQ.dao.RegistrationUserDao;
+import com.neonflame.projectQ.dto.RegistrationUserDto;
 import com.neonflame.projectQ.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,9 +18,9 @@ public class registrationController {
     }
 
     @PostMapping("")
-    public ResponseEntity<?> registration (@RequestBody RegistrationUserDao registrationUserDao) {
+    public ResponseEntity<?> registration (@RequestBody RegistrationUserDto registrationUserDto) {
 
-        userService.register(registrationUserDao);
+        userService.register(registrationUserDto);
 
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
@@ -29,7 +28,7 @@ public class registrationController {
     @GetMapping("activate")
     public ResponseEntity<Object> activate (@RequestParam("username") String username,
                                             @RequestParam("token") String token) {
-        if (userService.activateToken(username, token))
+        if (userService.activate(username, token))
             return new ResponseEntity<>(HttpStatus.OK);
         else
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

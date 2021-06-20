@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("api/v1/registration")
-//@PreAuthorize("permitAll()")
 public class RegistrationController {
 
     private final UserService userService;

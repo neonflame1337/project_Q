@@ -1,6 +1,10 @@
 package com.neonflame.projectQ.service;
 
 import com.neonflame.projectQ.dto.RegistrationUserDto;
+import com.neonflame.projectQ.excrptions.user.InvalidActivationCodeException;
+import com.neonflame.projectQ.excrptions.user.InvalidEmailFormatException;
+import com.neonflame.projectQ.excrptions.user.UserEmailExistsException;
+import com.neonflame.projectQ.excrptions.user.UserUsernameExistsException;
 import com.neonflame.projectQ.model.Role;
 import com.neonflame.projectQ.model.User;
 import com.neonflame.projectQ.repository.UserRepo;
@@ -24,11 +28,11 @@ public class UserService {
 
     public User register (RegistrationUserDto registrationUserDto) {
         if (!EmailValidator.isValid(registrationUserDto.email))
-            throw new IllegalStateException("Invalid email format");
+            throw new InvalidEmailFormatException("Invalid email format");
         if (userRepo.findByEmail(registrationUserDto.email.toLowerCase()) != null)
-            throw new IllegalStateException("User with this email exists");
+            throw new UserEmailExistsException("User with this email exists");
         if (userRepo.findByUsername(registrationUserDto.username.toLowerCase()) != null)
-            throw new IllegalStateException("User with this username exists");
+            throw new UserUsernameExistsException("User with this username exists");
         com.neonflame.projectQ.model.User user = new com.neonflame.projectQ.model.User();
         user.setEmail(registrationUserDto.email);
         user.setUsername(registrationUserDto.username);
@@ -54,7 +58,7 @@ public class UserService {
     public boolean activate(String username, String activationToken) {
         User user = userRepo.findByUsernameAndActivationToken(username, activationToken);
         if (user == null)
-            throw new IllegalStateException("Invalid activation token");
+            throw new InvalidActivationCodeException("Invalid activation token");
         user.setActivationToken(null);
         userRepo.save(user);
         return true;

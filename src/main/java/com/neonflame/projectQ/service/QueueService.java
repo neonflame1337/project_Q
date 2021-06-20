@@ -1,5 +1,8 @@
 package com.neonflame.projectQ.service;
 
+import com.neonflame.projectQ.excrptions.queue.QueueIsTakenException;
+import com.neonflame.projectQ.excrptions.queue.QueueNotFoundException;
+import com.neonflame.projectQ.excrptions.user.UserNotFoundException;
 import com.neonflame.projectQ.model.Place;
 import com.neonflame.projectQ.model.Queue;
 import com.neonflame.projectQ.model.User;
@@ -48,17 +51,17 @@ public class QueueService {
     public boolean takePlace(String username, Long queueId, int index) {
         User user = userRepo.findByUsername(username);
         if (user == null)
-            throw new IllegalStateException("User was not found");
+            throw new UserNotFoundException("User was not found");
 
         Queue queue = queueRepo.findById(queueId).orElse(null);
         if (queue == null)
-            throw new IllegalStateException("Queue was not found");
+            throw new QueueNotFoundException("Queue with id " + queueId + " not found");
 
         if (index < 0 || index > queue.getSize())
-            throw new IllegalArgumentException("Bad index");
+            throw new QueueIsTakenException("Bad index");
 
         if (!queue.isFree(index) && queue.findPlaceByUser(user).getIndex() != index)
-            throw new IllegalStateException("Place with index " + index + " is already taken");
+            throw new QueueIsTakenException("Place with index " + index + " is already taken");
 
         boolean result = true;
         Place place = queue.findPlaceByUser(user);
@@ -76,7 +79,9 @@ public class QueueService {
 
         if (result)
             queue.getPlaces().add(place);
+
         queueRepo.save(queue);
+
         return result;
     }
 }

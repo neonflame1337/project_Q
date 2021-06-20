@@ -1,6 +1,8 @@
 package com.neonflame.projectQ.model;
 
-import com.neonflame.projectQ.excrptions.QueueIndexErrorException;
+import com.neonflame.projectQ.excrptions.queue.QueueIndexErrorException;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 
@@ -8,6 +10,8 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.*;
 
+@Data
+@NoArgsConstructor
 @Entity
 public class Queue {
     @Id
@@ -36,62 +40,13 @@ public class Queue {
     }
 
     public boolean isFree (int index) {
+        if (index < 1 || index > this.size)
+            throw new QueueIndexErrorException("Index is out of range [1, " + this.size + "]");
+
         for (Place place: this.places) {
             if (place.getIndex() == index)
                 return false;
         }
         return true;
-    }
-
-    public Queue() {
-        this.created = LocalDateTime.now();
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public int getSize() {
-        return size;
-    }
-
-    public void setSize(int size) {
-        this.size = size;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
-    }
-
-    public User getCreator() {
-        return creator;
-    }
-
-    public void setCreator(User creator) {
-        this.creator = creator;
-    }
-
-    public LocalDateTime getCreated() {
-        return created;
-    }
-
-    public void setCreated(LocalDateTime created) {
-        this.created = created;
-    }
-
-    public List<Place> getPlaces() {
-        return places;
-    }
-
-    public void setPlaces(List<Place> places) {
-        this.places = places;
     }
 }

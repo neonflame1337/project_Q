@@ -3,7 +3,6 @@ package com.neonflame.projectQ.service;
 import com.neonflame.projectQ.model.Place;
 import com.neonflame.projectQ.model.Queue;
 import com.neonflame.projectQ.model.User;
-import com.neonflame.projectQ.repository.PlaceRepo;
 import com.neonflame.projectQ.repository.QueueRepo;
 import com.neonflame.projectQ.repository.UserRepo;
 import org.springframework.stereotype.Service;
@@ -15,12 +14,10 @@ public class QueueService {
 
     private final QueueRepo queueRepo;
     private final UserRepo userRepo;
-    private final PlaceRepo placeRepo;
 
-    public QueueService(QueueRepo queueRepo, UserRepo userRepo, PlaceRepo placeRepo) {
+    public QueueService(QueueRepo queueRepo, UserRepo userRepo) {
         this.queueRepo = queueRepo;
         this.userRepo = userRepo;
-        this.placeRepo = placeRepo;
     }
 
     public Queue findQueue(Long id) {
@@ -60,19 +57,26 @@ public class QueueService {
         if (index < 0 || index > queue.getSize())
             throw new IllegalArgumentException("Bad index");
 
-        Place place = placeRepo.findByQueueAndUser(queue, user);
+        if (!queue.isFree(index) && queue.findPlaceByUser(user).getIndex() != index)
+            throw new IllegalStateException("Place with index " + index + " is already taken");
+
+        boolean result = true;
+        Place place = queue.findPlaceByUser(user);
         if (place != null) {
             queue.getPlaces().remove(place);
-            // Free place if user takes(clicks) the same place
+            // User click another place     --> retake place
+            // User click the same place    --> vacate place
             if (place.getIndex() != index)
-                return false;
+                place.setIndex(index);
+            else
+                result = false;
         }
+        else
+            place = new Place(user, index);
 
-        queue.getPlaces().add(
-                new Place(user, queue, index)
-                //placeRepo.save(new Place(user, queue, index))
-        );
+        if (result)
+            queue.getPlaces().add(place);
         queueRepo.save(queue);
-        return true;
+        return result;
     }
 }

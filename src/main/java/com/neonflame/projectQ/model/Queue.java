@@ -23,9 +23,25 @@ public class Queue {
     @CreatedDate
     private LocalDateTime created;
 
-    @OneToMany
-    @JoinColumn(name = "queue_id")
+    @ElementCollection(targetClass = Place.class, fetch = FetchType.EAGER)
+    @CollectionTable(name = "place", joinColumns = @JoinColumn(name = "queue_id"))
     private List<Place> places = new ArrayList<>();
+
+    public Place findPlaceByUser(User user) {
+        for (Place place: this.places) {
+            if (place.getUser() == user)
+                return place;
+        }
+        return null;
+    }
+
+    public boolean isFree (int index) {
+        for (Place place: this.places) {
+            if (place.getIndex() == index)
+                return false;
+        }
+        return true;
+    }
 
     public Queue() {
         this.created = LocalDateTime.now();

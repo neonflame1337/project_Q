@@ -37,7 +37,8 @@ public class UserService {
         user.setActive(true);
         user.setActivationToken(UUID.randomUUID().toString());
         userRepo.save(user);
-        sentVerificationToken(user);
+        // TODO ENABLE AFTER DEBUG
+        //sentVerificationToken(user);
         return user;
     }
 

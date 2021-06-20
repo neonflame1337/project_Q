@@ -9,11 +9,11 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("api/v1/registration")
 //@PreAuthorize("permitAll()")
-public class registrationController {
+public class RegistrationController {
 
     private final UserService userService;
 
-    public registrationController(UserService userService) {
+    public RegistrationController(UserService userService) {
         this.userService = userService;
     }
 

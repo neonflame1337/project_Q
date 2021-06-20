@@ -1,35 +1,34 @@
 package com.neonflame.projectQ.model;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
+import com.neonflame.projectQ.excrptions.QueueIndexErrorException;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+
+import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.*;
 
 @Entity
 public class Queue {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private int size;
     private boolean active;
 
+    @CreatedBy
     @ManyToOne
     private User creator;
 
+    @CreatedDate
     private LocalDateTime created;
 
     @OneToMany
-    private Set<User> members;
-
-    @OneToMany
-    private List<User> places;
+    @JoinColumn(name = "queue_id")
+    private List<Place> places = new ArrayList<>();
 
     public Queue() {
         this.created = LocalDateTime.now();
-        this.members = new HashSet<>();
-        this.places = new ArrayList<>();
-
     }
 
     public Long getId() {
@@ -72,19 +71,11 @@ public class Queue {
         this.created = created;
     }
 
-    public Set<User> getMembers() {
-        return members;
-    }
-
-    public void setMembers(Set<User> members) {
-        this.members = members;
-    }
-
-    public List<User> getPlaces() {
+    public List<Place> getPlaces() {
         return places;
     }
 
-    public void setPlaces(List<User> places) {
+    public void setPlaces(List<Place> places) {
         this.places = places;
     }
 }

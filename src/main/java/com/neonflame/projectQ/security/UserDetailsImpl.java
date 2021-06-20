@@ -81,6 +81,8 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return activationToken == null;
+        // TODO ENABLE AFTER DEBUG
+        //return activationToken == null;
+        return true;
     }
 }

@@ -1,8 +1,8 @@
 package com.neonflame.projectQ.service;
 
-import com.neonflame.projectQ.excrptions.queue.QueueIsTakenException;
-import com.neonflame.projectQ.excrptions.queue.QueueNotFoundException;
-import com.neonflame.projectQ.excrptions.user.UserNotFoundException;
+import com.neonflame.projectQ.exceptions.queue.QueueIsTakenException;
+import com.neonflame.projectQ.exceptions.queue.QueueNotFoundException;
+import com.neonflame.projectQ.exceptions.user.UserNotFoundException;
 import com.neonflame.projectQ.model.Place;
 import com.neonflame.projectQ.model.Queue;
 import com.neonflame.projectQ.model.User;
@@ -11,6 +11,7 @@ import com.neonflame.projectQ.repository.UserRepo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class QueueService {
@@ -23,14 +24,36 @@ public class QueueService {
         this.userRepo = userRepo;
     }
 
+    /**
+     * Finds queue by id;
+     * @param id queue id
+     * @throws QueueNotFoundException if queue with id was not found
+     * @return queue
+     */
     public Queue findQueue(Long id) {
-        return queueRepo.findById(id).get();
+        Optional<Queue> queue = queueRepo.findById(id);
+        if (!queue.isPresent())
+            throw new QueueNotFoundException("Queue with id " + id + " not found");
+        return queue.get();
     }
 
+    /**
+     * Finds all queues
+     * @return all queues
+     */
     public List<Queue> findAllQueues() {
+        List<Queue> queues = queueRepo.findAll();
+        if (queues.isEmpty())
+            throw new QueueNotFoundException("No any queues");
         return queueRepo.findAll();
     }
 
+    /**
+     *
+     * @param username user's username
+     * @param size queue size should be in the range from 5 to 128
+     * @return created Queue
+     */
     public Queue create(String username, int size) {
         User user = userRepo.findByUsername(username);
         if (user == null)
@@ -46,9 +69,19 @@ public class QueueService {
         return queueRepo.save(queue);
     }
 
-    // return false if place was vacated
-    // TODO documentation
+    /**
+     * Takes place in the queue. If user takes the same place then method vacates the place
+     * @param username user's username String value
+     * @param queueId queue id
+     * @param index place in the queue
+     * @throws UserNotFoundException if user with username was not found
+     * @throws QueueNotFoundException if queue with queueId was not found
+     * @throws QueueIsTakenException if place in the queue has been taken by another user
+     * @return true if place was taken successful
+     * @return false if place was vacated
+     */
     public boolean takePlace(String username, Long queueId, int index) {
+        index--;
         User user = userRepo.findByUsername(username);
         if (user == null)
             throw new UserNotFoundException("User was not found");
@@ -57,7 +90,7 @@ public class QueueService {
         if (queue == null)
             throw new QueueNotFoundException("Queue with id " + queueId + " not found");
 
-        if (index < 0 || index > queue.getSize())
+        if (index < 0 || index >= queue.getSize())
             throw new QueueIsTakenException("Bad index");
 
         if (!queue.isFree(index) && queue.findPlaceByUser(user).getIndex() != index)

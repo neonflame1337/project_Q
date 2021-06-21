@@ -1,7 +1,14 @@
 package com.neonflame.projectQ.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class RegistrationUserDto {
-    public String email;
-    public String username;
-    public String password;
+    private String email;
+    private String username;
+    private String password;
 }

@@ -1,10 +1,10 @@
 package com.neonflame.projectQ.service;
 
 import com.neonflame.projectQ.dto.RegistrationUserDto;
-import com.neonflame.projectQ.excrptions.user.InvalidActivationCodeException;
-import com.neonflame.projectQ.excrptions.user.InvalidEmailFormatException;
-import com.neonflame.projectQ.excrptions.user.UserEmailExistsException;
-import com.neonflame.projectQ.excrptions.user.UserUsernameExistsException;
+import com.neonflame.projectQ.exceptions.user.InvalidActivationCodeException;
+import com.neonflame.projectQ.exceptions.user.InvalidEmailFormatException;
+import com.neonflame.projectQ.exceptions.user.UserEmailExistsException;
+import com.neonflame.projectQ.exceptions.user.UserUsernameExistsException;
 import com.neonflame.projectQ.model.Role;
 import com.neonflame.projectQ.model.User;
 import com.neonflame.projectQ.repository.UserRepo;
@@ -26,26 +26,37 @@ public class UserService {
         this.mailSender = mailSender;
     }
 
+    /**
+     * Registers user in the system
+     * @param registrationUserDto DTO object with the necessary information for user registration
+     * @throws InvalidEmailFormatException if user's email has invalid form
+     * @throws UserEmailExistsException if user with email already exists
+     * @throws UserUsernameExistsException if user with username already exists
+     * @return registered user
+     */
     public User register (RegistrationUserDto registrationUserDto) {
-        if (!EmailValidator.isValid(registrationUserDto.email))
+        if (!EmailValidator.isValid(registrationUserDto.getEmail()))
             throw new InvalidEmailFormatException("Invalid email format");
-        if (userRepo.findByEmail(registrationUserDto.email.toLowerCase()) != null)
+        if (userRepo.findByEmail(registrationUserDto.getEmail().toLowerCase()) != null)
             throw new UserEmailExistsException("User with this email exists");
-        if (userRepo.findByUsername(registrationUserDto.username.toLowerCase()) != null)
+        if (userRepo.findByUsername(registrationUserDto.getUsername().toLowerCase()) != null)
             throw new UserUsernameExistsException("User with this username exists");
         com.neonflame.projectQ.model.User user = new com.neonflame.projectQ.model.User();
-        user.setEmail(registrationUserDto.email);
-        user.setUsername(registrationUserDto.username);
-        user.setPassword(new PasswordEncoder().encode(registrationUserDto.password));
+        user.setEmail(registrationUserDto.getEmail());
+        user.setUsername(registrationUserDto.getUsername());
+        user.setPassword(new PasswordEncoder().encode(registrationUserDto.getPassword()));
         user.getRoles().add(Role.USER);
         user.setActive(true);
         user.setActivationToken(UUID.randomUUID().toString());
         userRepo.save(user);
-        // TODO ENABLE AFTER DEBUG
-        //sentVerificationToken(user);
+        sentVerificationToken(user);
         return user;
     }
 
+    /**
+     * Sends to user email with verification token
+     * @param user
+     */
     public void sentVerificationToken (User user) {
         mailSender.send(
                 user.getEmail(),
@@ -55,6 +66,13 @@ public class UserService {
                         user.getUsername(), user.getActivationToken()));
     }
 
+    /**
+     * Activates the user by verification token
+     * @param username user's username
+     * @param activationToken user's activation token
+     * @throws InvalidActivationCodeException if user with activationToken not found
+     * @return true if user was activated successfully
+     */
     public boolean activate(String username, String activationToken) {
         User user = userRepo.findByUsernameAndActivationToken(username, activationToken);
         if (user == null)

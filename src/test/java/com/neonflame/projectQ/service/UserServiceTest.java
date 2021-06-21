@@ -27,9 +27,9 @@ class UserServiceTest {
     @BeforeAll
     static void setUp() {
         registrationUserDto = new RegistrationUserDto();
-        registrationUserDto.username = "test";
-        registrationUserDto.email = "test@test.test";
-        registrationUserDto.password = "testPass";
+        registrationUserDto.setUsername("test");
+        registrationUserDto.setEmail("test@test.test");
+        registrationUserDto.setPassword("testPass");
     }
 
     @Test
@@ -38,7 +38,7 @@ class UserServiceTest {
         verify(userRepo, times(1)).save(ArgumentMatchers.any(User.class));
         verify(mailSender, times(1))
                 .send(
-                ArgumentMatchers.eq(registrationUserDto.email),
+                ArgumentMatchers.eq(registrationUserDto.getEmail()),
                 ArgumentMatchers.anyString(),
                 ArgumentMatchers.anyString());
     }
@@ -48,7 +48,7 @@ class UserServiceTest {
 
         doReturn(new User())
                 .when(userRepo)
-                .findByUsername(registrationUserDto.username);
+                .findByUsername(registrationUserDto.getUsername());
 
         Exception exception = assertThrows(RuntimeException.class, () -> {
             userService.register(registrationUserDto); });
@@ -56,7 +56,7 @@ class UserServiceTest {
         verify(userRepo, times(0)).save(ArgumentMatchers.any(User.class));
         verify(mailSender, times(0))
                 .send(
-                        ArgumentMatchers.eq(registrationUserDto.email),
+                        ArgumentMatchers.eq(registrationUserDto.getEmail()),
                         ArgumentMatchers.anyString(),
                         ArgumentMatchers.anyString());
     }
@@ -65,7 +65,7 @@ class UserServiceTest {
     public void registerUserFailExistingEmail() {
         doReturn(new User())
                 .when(userRepo)
-                .findByEmail(registrationUserDto.email);
+                .findByEmail(registrationUserDto.getEmail());
 
         Exception exception = assertThrows(RuntimeException.class, () -> {
             userService.register(registrationUserDto); });
@@ -73,7 +73,7 @@ class UserServiceTest {
         verify(userRepo, times(0)).save(ArgumentMatchers.any(User.class));
         verify(mailSender, times(0))
                 .send(
-                        ArgumentMatchers.eq(registrationUserDto.email),
+                        ArgumentMatchers.eq(registrationUserDto.getEmail()),
                         ArgumentMatchers.anyString(),
                         ArgumentMatchers.anyString());
     }
@@ -81,7 +81,7 @@ class UserServiceTest {
     @Test
     public void activate() {
         User user = new User();
-        user.setUsername(registrationUserDto.username);
+        user.setUsername(registrationUserDto.getUsername());
         user.setActivationToken("token");
 
         doReturn(user)
@@ -96,7 +96,7 @@ class UserServiceTest {
 
     public void activateFail() {
         User user = new User();
-        user.setUsername(registrationUserDto.username);
+        user.setUsername(registrationUserDto.getUsername());
         user.setActivationToken("token");
 
         doReturn(user)

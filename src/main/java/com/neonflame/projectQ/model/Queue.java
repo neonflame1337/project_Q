@@ -1,8 +1,9 @@
 package com.neonflame.projectQ.model;
 
-import com.neonflame.projectQ.excrptions.queue.QueueIndexErrorException;
+import com.neonflame.projectQ.exceptions.queue.QueueIndexErrorException;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.type.LocalDateType;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 
@@ -25,7 +26,7 @@ public class Queue {
     private User creator;
 
     @CreatedDate
-    private LocalDateTime created;
+    private LocalDateTime created = LocalDateTime.now();
 
     @ElementCollection(targetClass = Place.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "place", joinColumns = @JoinColumn(name = "queue_id"))
@@ -40,7 +41,7 @@ public class Queue {
     }
 
     public boolean isFree (int index) {
-        if (index < 1 || index > this.size)
+        if (index < 0 || index >= this.size)
             throw new QueueIndexErrorException("Index is out of range [1, " + this.size + "]");
 
         for (Place place: this.places) {

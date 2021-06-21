@@ -1,4 +1,4 @@
-package com.neonflame.projectQ.excrptions.queue;
+package com.neonflame.projectQ.exceptions.queue;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

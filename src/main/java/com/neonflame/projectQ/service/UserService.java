@@ -1,10 +1,7 @@
 package com.neonflame.projectQ.service;
 
 import com.neonflame.projectQ.dto.user.RegistrationUserDto;
-import com.neonflame.projectQ.exceptions.user.InvalidActivationCodeException;
-import com.neonflame.projectQ.exceptions.user.InvalidEmailFormatException;
-import com.neonflame.projectQ.exceptions.user.UserEmailExistsException;
-import com.neonflame.projectQ.exceptions.user.UserUsernameExistsException;
+import com.neonflame.projectQ.exceptions.user.*;
 import com.neonflame.projectQ.model.Role;
 import com.neonflame.projectQ.model.User;
 import com.neonflame.projectQ.repository.UserRepo;
@@ -24,6 +21,13 @@ public class UserService {
     public UserService(UserRepo userRepo, MyMailSender mailSender) {
         this.userRepo = userRepo;
         this.mailSender = mailSender;
+    }
+
+    public User findUser(String username) {
+        User user = userRepo.findByUsername(username);
+        if (user == null)
+            throw new UserNotFoundException("User was not found");
+        return user;
     }
 
     /**

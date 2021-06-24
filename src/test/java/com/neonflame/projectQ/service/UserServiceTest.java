@@ -1,6 +1,6 @@
 package com.neonflame.projectQ.service;
 
-import com.neonflame.projectQ.dto.RegistrationUserDto;
+import com.neonflame.projectQ.dto.user.RegistrationUserDto;
 import com.neonflame.projectQ.model.User;
 import com.neonflame.projectQ.repository.UserRepo;
 import com.neonflame.projectQ.utility.MyMailSender;

@@ -1,6 +1,6 @@
 package com.neonflame.projectQ.controller;
 
-import com.neonflame.projectQ.dto.RegistrationUserDto;
+import com.neonflame.projectQ.dto.user.RegistrationUserDto;
 import com.neonflame.projectQ.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

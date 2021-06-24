@@ -1,4 +1,4 @@
-package com.neonflame.projectQ.dto;
+package com.neonflame.projectQ.dto.queue;
 
 import com.neonflame.projectQ.model.Queue;
 import lombok.AllArgsConstructor;
@@ -8,8 +8,8 @@ import lombok.NoArgsConstructor;
 import javax.persistence.criteria.ListJoin;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class QueueBasicDto {
     private Long id;
     private int size;

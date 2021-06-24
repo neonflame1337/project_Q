@@ -1,16 +1,16 @@
 package com.neonflame.projectQ.controller;
 
-import com.neonflame.projectQ.dto.QueueAdvancedDto;
-import com.neonflame.projectQ.dto.QueueBasicDto;
+import com.neonflame.projectQ.dto.queue.QueueActionResponse;
+import com.neonflame.projectQ.dto.queue.QueueAdvancedDto;
+import com.neonflame.projectQ.dto.queue.QueueBasicDto;
+import com.neonflame.projectQ.dto.queue.QueueTakeResponseDto;
 import com.neonflame.projectQ.model.Queue;
 import com.neonflame.projectQ.service.QueueService;
-import org.hibernate.action.internal.QueuedOperationCollectionAction;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,16 +38,55 @@ public class QueueController {
     }
 
     @GetMapping("create")
-    public ResponseEntity<?> create(Principal principal, @RequestParam("size") int size) {
-        queueService.create(principal.getName(), size);
+    public ResponseEntity<QueueActionResponse> create(Principal principal, @RequestParam("size") int size) {
+        QueueActionResponse response = new QueueActionResponse();
+        response.setUsername(principal.getName());
+        response.setAction("created");
+
+        Long queueId = queueService.create(principal.getName(), size).getId();
+        response.setQueueId(queueId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @DeleteMapping("{id}")
+    public ResponseEntity<QueueActionResponse> delete (Principal principal, @PathVariable("id") Long id) {
+        queueService.delete(id, principal.getName());
+
+        QueueActionResponse response = new QueueActionResponse();
+        response.setQueueId(id);
+        response.setUsername(principal.getName());
+        response.setAction("deleted");
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("{id}/activate")
+    public ResponseEntity<QueueActionResponse> activate(Principal principal, @PathVariable("id") Long id) {
+        QueueActionResponse response = new QueueActionResponse();
+        response.setUsername(principal.getName());
+        response.setQueueId(id);
+
+        if (queueService.activate(id, principal.getName()))
+            response.setAction("activated");
+        else
+            response.setAction("deactivated");
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     @GetMapping("{id}/take")
-    public ResponseEntity<?> takePlace(Principal principal,
-                                       @PathVariable("id") Long queueId,
-                                       @RequestParam("index") int index) {
-        queueService.takePlace(principal.getName(), queueId, index);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<QueueTakeResponseDto> takePlace(Principal principal,
+                                                          @PathVariable("id") Long queueId,
+                                                          @RequestParam("index") int index) {
+        QueueTakeResponseDto response = new QueueTakeResponseDto();
+        response.setQueueId(queueId);
+        response.setUsername(principal.getName());
+
+        if (queueService.takePlace(principal.getName(), queueId, index))
+            response.setAction("taken");
+        else
+            response.setAction("vacated");
+
+            return new ResponseEntity<>(response,HttpStatus.OK);
     }
 }

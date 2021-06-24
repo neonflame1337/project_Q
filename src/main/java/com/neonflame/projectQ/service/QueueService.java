@@ -1,5 +1,7 @@
 package com.neonflame.projectQ.service;
 
+import com.neonflame.projectQ.exceptions.queue.QueueAccessDeniedException;
+import com.neonflame.projectQ.exceptions.queue.QueueIndexErrorException;
 import com.neonflame.projectQ.exceptions.queue.QueueIsTakenException;
 import com.neonflame.projectQ.exceptions.queue.QueueNotFoundException;
 import com.neonflame.projectQ.exceptions.user.UserNotFoundException;
@@ -49,7 +51,7 @@ public class QueueService {
     }
 
     /**
-     *
+     * Queue create
      * @param username user's username
      * @param size queue size should be in the range from 5 to 128
      * @return created Queue
@@ -57,16 +59,62 @@ public class QueueService {
     public Queue create(String username, int size) {
         User user = userRepo.findByUsername(username);
         if (user == null)
-            throw new IllegalStateException("User was not found");
+            throw new UserNotFoundException("User was not found");
 
         if (size < 5 || size > 128)
-            throw new IllegalArgumentException("Bad queue size value");
+            throw new QueueIndexErrorException("Bad queue size value");
 
         Queue queue = new Queue();
         queue.setCreator(user);
         queue.setSize(size);
 
         return queueRepo.save(queue);
+    }
+
+    /**
+     * Queue delete
+     * @param queueId
+     * @param username
+     * @throws QueueNotFoundException if queue with queueId was not found
+     * @throws QueueAccessDeniedException if user do not have permission to delete the queue
+     */
+    public void delete(Long queueId, String username) {
+        Queue queue = queueRepo.findById(queueId).orElse(null);
+        if (queue == null)
+            throw new QueueNotFoundException(queueId);
+        if (!queue.getCreator().getUsername().equals(username))
+            throw new QueueAccessDeniedException("User + " + username + "can not delete the queue");
+
+        queueRepo.delete(queue);
+    }
+
+    /**
+     * Queue activate or deactivate if queue has been activated
+     * @param queueId
+     * @param username
+     * @throws QueueNotFoundException if queue with queueId was not found
+     * @throws QueueAccessDeniedException if user do not have permission to delete the queue
+     * @return true if queue was activated
+     * @return false if queue was deactivated
+     */
+    public boolean activate(Long queueId, String username) {
+        Queue queue = queueRepo.findById(queueId).orElse(null);
+        if (queue == null)
+            throw new QueueNotFoundException(queueId);
+        if (queue.getCreator().getUsername() != username)
+            throw new QueueAccessDeniedException("User + " + username + "can not control queue active status");
+
+        boolean result;
+        if (queue.isActive()) {
+            queue.setActive(false);
+            result = false;
+        }
+        else {
+            queue.setActive(true);
+            result = true;
+        }
+        queueRepo.save(queue);
+        return result;
     }
 
     /**
@@ -88,13 +136,13 @@ public class QueueService {
 
         Queue queue = queueRepo.findById(queueId).orElse(null);
         if (queue == null)
-            throw new QueueNotFoundException("Queue with id " + queueId + " not found");
+            throw new QueueNotFoundException(queueId);
 
         if (index < 0 || index >= queue.getSize())
             throw new QueueIsTakenException("Bad index");
 
         if (!queue.isFree(index) && queue.findPlaceByUser(user).getIndex() != index)
-            throw new QueueIsTakenException("Place with index " + index + " is already taken");
+            throw new QueueIsTakenException(index);
 
         boolean result = true;
         Place place = queue.findPlaceByUser(user);

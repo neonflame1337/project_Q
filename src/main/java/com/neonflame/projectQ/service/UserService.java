@@ -1,6 +1,6 @@
 package com.neonflame.projectQ.service;
 
-import com.neonflame.projectQ.dto.RegistrationUserDto;
+import com.neonflame.projectQ.dto.user.RegistrationUserDto;
 import com.neonflame.projectQ.exceptions.user.InvalidActivationCodeException;
 import com.neonflame.projectQ.exceptions.user.InvalidEmailFormatException;
 import com.neonflame.projectQ.exceptions.user.UserEmailExistsException;

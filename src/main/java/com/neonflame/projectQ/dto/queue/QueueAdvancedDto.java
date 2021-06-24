@@ -1,4 +1,4 @@
-package com.neonflame.projectQ.dto;
+package com.neonflame.projectQ.dto.queue;
 
 import com.neonflame.projectQ.model.Place;
 import com.neonflame.projectQ.model.Queue;

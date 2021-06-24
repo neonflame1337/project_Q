@@ -8,4 +8,8 @@ public class QueueNotFoundException extends RuntimeException {
     public QueueNotFoundException(String message) {
         super(message);
     }
+
+    public QueueNotFoundException(Long id) {
+        super("Queue with id " + id + " not found");
+    }
 }

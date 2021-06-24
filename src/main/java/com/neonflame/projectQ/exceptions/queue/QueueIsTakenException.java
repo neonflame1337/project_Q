@@ -8,4 +8,8 @@ public class QueueIsTakenException extends RuntimeException{
      public QueueIsTakenException(String message) {
         super(message);
     }
+
+    public QueueIsTakenException(int index) {
+         super("Place with index " + index + " is already taken");
+    }
 }

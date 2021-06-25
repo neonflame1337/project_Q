@@ -45,7 +45,7 @@ public class QueueController {
 
         Long queueId = queueService.create(principal.getName(), size).getId();
         response.setQueueId(queueId);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")
@@ -80,6 +80,7 @@ public class QueueController {
                                                           @RequestParam("index") int index) {
         QueueTakeResponseDto response = new QueueTakeResponseDto();
         response.setQueueId(queueId);
+        response.setPlaceNumber(index);
         response.setUsername(principal.getName());
 
         if (queueService.takePlace(principal.getName(), queueId, index))

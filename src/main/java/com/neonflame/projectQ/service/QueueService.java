@@ -94,7 +94,7 @@ public class QueueService {
      */
     public boolean activate(Long queueId, String username) {
         Queue queue = findQueue(queueId);
-        if (queue.getCreator().getUsername() != username)
+        if (!queue.getCreator().getUsername().equals(username))
             throw new QueueAccessDeniedException("User + " + username + "can not control queue active status");
 
         boolean result;
